@@ -2,7 +2,9 @@ package presentation;
 
 import exception.InvalidRegisterException;
 import service.UserService;
-import static util.Input.inputString;
+import util.InputValidation;
+
+import static util.InputValidation.inputString;
 
 
 public class RegisterEmployee {
@@ -11,11 +13,16 @@ public class RegisterEmployee {
         System.out.println("============= Đăng ký =============");
         String userName = inputUsername();
         String passWord = inputPassword();
-        String email = inputEmail();
-        System.out.print("Nhập số điện thoại: ");
-        String phoneNumber = inputString();
+        String email = InputValidation.inputEmail();
 
-        userService.registerEmployee(userName, passWord, email, phoneNumber);
+        System.out.print("Nhập phòng ban: ");
+        String department = inputString();
+
+        String phoneNumber = InputValidation.inputPhoneNumber();
+
+        userService.registerEmployee(userName, passWord, department, email, phoneNumber);
+
+        System.out.println("Đăng ký thành công.");
     }
 
     public static String inputUsername() throws Exception {
@@ -47,17 +54,4 @@ public class RegisterEmployee {
         }
     }
 
-    public static String inputEmail() {
-        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
-
-        while (true) {
-            String email = inputString();
-
-            if (email.matches(emailRegex)) {
-                return email;
-            } else {
-                System.out.print("Email không hợp lệ! Vui lòng nhập đúng định dạng (VD: tenban@gmail.com): ");
-            }
-        }
-    }
 }

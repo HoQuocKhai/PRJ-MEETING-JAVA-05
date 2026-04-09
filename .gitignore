@@ -31,3 +31,9 @@ bin/
 
 ### idea ###
 .idea
+
+#### gitignore ###
+.gitignore
+
+### md ###
+PROJECT_ANALYSIS.md
