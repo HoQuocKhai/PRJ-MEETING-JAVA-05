@@ -18,21 +18,30 @@ public class UserService {
     }
 
     // Hàm xử lý nghiệp vụ đăng ký
-    public void registerEmployee(String username, String password, String department, String contact, String phone) throws Exception {
+    private void createUser(String username, String password, Role role, String department, String contact, String phone) throws Exception {
         User newUser = new User();
-
         newUser.setUsername(username);
 
         String hashedPass = PasswordUtil.hashPassword(password);
         newUser.setPassword(hashedPass);
         newUser.setDepartment(department);
-        newUser.setRole(Role.ADMIN);
+        newUser.setRole(role);
         newUser.setContact(contact);
         newUser.setPhoneNumber(phone);
 
         userDAO.insertUser(newUser);
     }
-    
+
+    // Hàm dành cho nhân viên tự đăng ký
+    public void registerEmployee(String username, String password, String department, String contact, String phone) throws Exception {
+        createUser(username, password, Role.EMPLOYEE, department, contact, phone);
+    }
+
+    // Hàm dành cho Admin tạo tài khoản nội bộ
+    public void createStaffAdmin(String username, String password, Role selectedRole, String department, String contact, String phone) throws Exception {
+        createUser(username, password, selectedRole, department, contact, phone);
+    }
+
     // Hàm xử lý nghiệp vụ đăng nhập
     public User login(String username, String password) throws Exception {
         User user = userDAO.getUserByUsername(username);
