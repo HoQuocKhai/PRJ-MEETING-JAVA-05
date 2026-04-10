@@ -31,7 +31,7 @@ public class InputValidation {
     public static String inputEmail() {
         String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
         while (true) {
-            System.out.print("Nhập email liên hệ: ");
+            System.out.print("Nhập liên hệ (Email/Contact): ");
             String email = inputString();
             if (email.matches(emailRegex)) {
                 return email;

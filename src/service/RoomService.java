@@ -26,6 +26,25 @@ public class RoomService {
         }
     }
 
+    public void displayRoomsByName(String keyword) {
+        try {
+            List<Room> rooms = roomDAO.getRoomByName(keyword);
+            if (rooms.isEmpty()) {
+                System.out.println("Hiện tại không có phòng nào tên có tên trên.");
+                return;
+            }
+            System.out.println("\n--- DANH SÁCH PHÒNG HỌP THEO TÊN " + keyword + " ---");
+            System.out.printf("%-5s | %-20s | %-10s | %-20s | %-30s\n", "ID", "Tên Phòng", "Sức chứa", "Vị trí", "Thiết bị cố định");
+            System.out.println("---------------------------------------------------------------------------------------------");
+            for (Room r : rooms) {
+                System.out.printf("%-5d | %-20s | %-10d | %-20s | %-30s\n",
+                        r.getRoomId(), r.getRoomName(), r.getCapacity(), r.getLocation(), r.getFixedDevice());
+            }
+        } catch (Exception e) {
+            System.out.println("Lỗi khi lấy danh sách phòng: " + e.getMessage());
+        }
+    }
+
     public void addRoom(String name, int capacity, String location, String devices) {
         try {
             // TODO: Bạn có thể gọi roomDAO.isRoomNameExist(name) ở đây để chặn trùng tên

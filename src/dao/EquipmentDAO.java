@@ -1,23 +1,37 @@
 package dao;
 
+import model.Enum.EquipmentStatus;
+import model.Equipment;
 import model.Room;
 import util.DatabaseConnection;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RoomDAO {
+public class EquipmentDAO {
 
     // ==========================================
     // HÀM HELPER: Dùng chung để map dữ liệu
     // ==========================================
-    private Room mapResultSetToRoom(ResultSet rs) throws SQLException {
-        Room r = new Room();
-        r.setRoomId(rs.getInt("roomId"));
-        r.setRoomName(rs.getString("roomName"));
-        r.setCapacity(rs.getInt("capacity"));
-        r.setLocation(rs.getString("location"));
-        r.setFixedDevice(rs.getString("fixedDevice"));
+    private Equipment mapResultSetToRoom(ResultSet rs) throws SQLException {
+        Equipment r = new Equipment();
+        r.setEquipmentId(rs.getInt("equipmentId"));
+        r.setEquipmentName(rs.getString("equipmentName"));
+        r.setQuantity(rs.getInt("quantity"));
+        r.setAvailable(rs.getInt("available"));
+
+        String statusStr = rs.getString("status");
+        if (statusStr != null && !statusStr.trim().isEmpty()) {
+            try {
+                r.setStatus(EquipmentStatus.valueOf(statusStr.trim().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                System.err.println("Cảnh báo: Trạng thái không hợp lệ trong DB - " + statusStr);
+            }
+        }
         return r;
     }
 
@@ -26,9 +40,9 @@ public class RoomDAO {
     // ==========================================
 
     // 1. Lấy danh sách tất cả phòng họp
-    public List<Room> getAllRooms() throws SQLException {
-        List<Room> list = new ArrayList<>();
-        String sql = "SELECT * FROM rooms";
+    public List<Equipment> getAllEquipments() throws SQLException {
+        List<Equipment> list = new ArrayList<>();
+        String sql = "SELECT * FROM equipments";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -59,11 +73,11 @@ public class RoomDAO {
     }
 
     // 5. Lấy thông tin phòng theo ID
-    public Room getRoomById(int roomId) throws SQLException {
-        String sql = "SELECT * FROM rooms WHERE roomId=?";
+    public Equipment getEquipmentById(int equipmentId) throws SQLException {
+        String sql = "SELECT * FROM equipments WHERE equipmentId=?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, roomId);
+            ps.setInt(1, equipmentId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return mapResultSetToRoom(rs);
@@ -71,22 +85,6 @@ public class RoomDAO {
             }
         }
         return null;
-    }
-
-    // 6. Lấy thông tin phòng theo tên
-    public List<Room> getRoomByName(String keyword) throws SQLException {
-        List<Room> list = new ArrayList<>();
-        String sql = "SELECT * FROM rooms WHERE roomName LIKE ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + keyword + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToRoom(rs)); // Tái sử dụng helper
-                }
-            }
-        }
-        return list;
     }
 
     // ==========================================

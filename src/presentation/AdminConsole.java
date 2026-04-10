@@ -1,6 +1,6 @@
 package presentation;
 
-import model.Role;
+import model.Enum.Role;
 import model.User;
 import service.RoomService;
 import service.UserService;
@@ -16,8 +16,9 @@ public class AdminConsole {
             System.out.println("\n--- QUẢN TRỊ VIÊN: " + admin.getUsername() + " ---");
             System.out.println("1. Quản lý người dùng (Thêm Admin/Support Staff)");
             System.out.println("2. Quản lý phòng họp");
-            System.out.println("3. Xem báo cáo hệ thống");
-            System.out.println("4. Xem/Cập nhật hồ sơ cá nhân");
+            System.out.println("3. Quản lý thiết bị di động.");
+            System.out.println("4. Xem báo cáo hệ thống");
+            System.out.println("5. Xem/Cập nhật hồ sơ cá nhân");
             System.out.println("0. Đăng xuất");
             System.out.print("Lựa chọn: ");
 
@@ -25,7 +26,8 @@ public class AdminConsole {
             switch (choice) {
                 case 1 -> createStaff();
                 case 2 -> manageRooms();
-                case 4 -> ProfileConsole.manageProfile(admin);
+                case 3 -> System.out.println("Quản lý thiết bị di động.");
+                case 5 -> ProfileConsole.manageProfile(admin);
                 case 0 -> back = true;
                 default -> System.out.println("Lựa chọn không hợp lệ!");
             }
@@ -40,16 +42,19 @@ public class AdminConsole {
             System.out.println("1. Quản trị viên (ADMIN)");
             System.out.println("2. Nhân viên hỗ trợ (SUPPORT_STAFF)");
             System.out.print("Lựa chọn: ");
-            int roleChoice = InputValidation.inputInt();
+            int choice = InputValidation.inputInt();
 
             Role selectedRole = null;
-            if (roleChoice == 1) {
+            if (choice == 1) {
                 selectedRole = Role.ADMIN;
-            } else if (roleChoice == 2) {
+            } else if (choice == 2) {
                 selectedRole = Role.SUPPORT_STAFF;
+            } else if (choice == 0) {
+                System.out.println("Thoát thao tác thêm mới!");
+                return;
             } else {
                 System.out.println("Lựa chọn không hợp lệ. Hủy thao tác thêm mới!");
-                return; // Thoát khỏi case 1, quay lại menu Admin
+                return;
             }
 
             // Nếu chọn đúng, bắt đầu cho nhập thông tin
@@ -64,7 +69,7 @@ public class AdminConsole {
             } catch (Exception e) {
                 System.out.println("Lỗi kiểm tra hệ thống: " + e.getMessage());
                 return;
-            }
+            }// check chùng username
 
             System.out.print("Nhập Password: ");
             String password = InputValidation.inputString();
@@ -72,11 +77,8 @@ public class AdminConsole {
             System.out.print("Nhập Phòng ban (Department): ");
             String department = InputValidation.inputString();
 
-            System.out.print("Nhập Liên hệ (Email/Contact): ");
-            String contact = InputValidation.inputString();
-
-            System.out.print("Nhập Số điện thoại: ");
-            String phone = InputValidation.inputString();
+            String contact = InputValidation.inputEmail();
+            String phone = InputValidation.inputPhoneNumber();
 
             try {
                 userService.createStaffAdmin(username, password, selectedRole, department, contact, phone);
@@ -87,7 +89,7 @@ public class AdminConsole {
         }
     }
 
-    // CRUD rooms
+    // Quản lý phòng họp
     public static void manageRooms() {
         boolean back = false;
         while (!back) {
@@ -96,6 +98,7 @@ public class AdminConsole {
             System.out.println("2. Thêm phòng họp mới");
             System.out.println("3. Sửa thông tin phòng");
             System.out.println("4. Xóa phòng họp");
+            System.out.println("5. Tìm kiếm phòng theo tên");
             System.out.println("0. Quay lại menu chính");
             System.out.print("Lựa chọn: ");
             int choice = InputValidation.inputInt();
@@ -138,6 +141,40 @@ public class AdminConsole {
                     } else {
                         System.out.println("=> Đã hủy thao tác xóa.");
                     }
+                }// delete
+                case 5 -> {
+                    System.out.print("Nhập tên phòng cần tìm: ");
+                    String keyword = InputValidation.inputString();
+                    roomService.displayRoomsByName(keyword);
+                }// search by name
+                case 0 -> back = true;
+                default -> System.out.println("Lựa chọn không hợp lệ!");
+            }
+        }
+    }
+
+    // Quản lý thiết bị di động
+    public static void manageEquipments() {
+        boolean back = false;
+        while (!back) {
+            System.out.println("\n--- QUẢN LÝ THIẾT BỊ DI ĐỘNG ---");
+            System.out.println("1. Xem danh sách thiết bị di động");
+            System.out.println("2. Thêm thiết bị mới");
+            System.out.println("3. Sửa thông tin thiết bị");
+            System.out.println("4. Xóa thiết bị di động");
+            System.out.println("0. Quay lại menu chính");
+            System.out.print("Lựa chọn: ");
+            int choice = InputValidation.inputInt();
+
+            switch (choice) {
+                case 1 -> roomService.displayAllRooms();
+                case 2 -> {
+
+                }// add
+                case 3 -> {
+                }// update
+                case 4 -> {
+
                 }// delete
                 case 0 -> back = true;
                 default -> System.out.println("Lựa chọn không hợp lệ!");

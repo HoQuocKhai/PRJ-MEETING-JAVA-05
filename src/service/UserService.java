@@ -1,7 +1,7 @@
 package service;
 
 import dao.UserDAO;
-import model.Role;
+import model.Enum.Role;
 import model.User;
 import util.PasswordUtil;
 

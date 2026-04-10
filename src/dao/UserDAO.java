@@ -61,7 +61,7 @@ public class UserDAO {
                     
                     String roleStr = rs.getString("roleUser");
                     if (roleStr != null) {
-                        user.setRole(model.Role.valueOf(roleStr));
+                        user.setRole(model.Enum.Role.valueOf(roleStr));
                     }
                     
                     user.setContact(rs.getString("contact"));
