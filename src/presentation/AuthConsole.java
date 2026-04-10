@@ -1,18 +1,41 @@
 package presentation;
 
 import exception.InvalidRegisterException;
+import model.User;
 import service.UserService;
 import util.InputValidation;
 
 import static util.InputValidation.inputString;
 
-
-public class RegisterEmployee {
+public class AuthConsole {
     private static final UserService userService = new UserService();
+
+    public static User login() {
+        System.out.println("============= Đăng nhập =============");
+        System.out.print("Tên đăng nhập: ");
+        String username = InputValidation.inputString();
+
+        System.out.print("Mật khẩu: ");
+        String password = InputValidation.inputString();
+
+        try {
+            User user = userService.login(username, password);
+            if (user != null) {
+                System.out.println("\nĐăng nhập thành công! Chào mừng " + user.getUsername() + " (" + user.getRole().name() + ")");
+                return user;
+            } else {
+                System.out.println("\nTên đăng nhập hoặc mật khẩu không chính xác!");
+            }
+        } catch (Exception e) {
+            System.out.println("\nCó lỗi xảy ra: " + e.getMessage());
+        }
+        return null;
+    }
+
     public static void register() throws Exception {
         System.out.println("============= Đăng ký =============");
         String userName = inputUsername();
-        String passWord = inputPassword();
+        String passWord = inputConfirmPassword();
         String email = InputValidation.inputEmail();
 
         System.out.print("Nhập phòng ban: ");
@@ -38,7 +61,7 @@ public class RegisterEmployee {
         }
     }
 
-    public static String inputPassword() throws InvalidRegisterException {
+    public static String inputConfirmPassword() throws InvalidRegisterException {
         while (true) {
             System.out.print("Nhập mật khẩu: ");
             String passWord = inputString();
@@ -53,5 +76,4 @@ public class RegisterEmployee {
             }
         }
     }
-
 }

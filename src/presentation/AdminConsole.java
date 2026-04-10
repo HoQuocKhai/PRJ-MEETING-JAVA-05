@@ -26,7 +26,7 @@ public class AdminConsole {
             switch (choice) {
                 case 1 -> createStaff();
                 case 2 -> manageRooms();
-                case 3 -> System.out.println("Quản lý thiết bị di động.");
+                case 3 -> manageEquipments();
                 case 5 -> ProfileConsole.manageProfile(admin);
                 case 0 -> back = true;
                 default -> System.out.println("Lựa chọn không hợp lệ!");

@@ -1,17 +1,15 @@
 package dao;
 
 import model.Room;
-import util.DatabaseConnection;
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
-public class RoomDAO {
+public class RoomDAO extends BaseDAO<Room> {
 
-    // ==========================================
-    // HÀM HELPER: Dùng chung để map dữ liệu
-    // ==========================================
-    private Room mapResultSetToRoom(ResultSet rs) throws SQLException {
+    // Ghi đè hàm map của class cha
+    @Override
+    protected Room mapResultSetToObject(ResultSet rs) throws SQLException {
         Room r = new Room();
         r.setRoomId(rs.getInt("roomId"));
         r.setRoomName(rs.getString("roomName"));
@@ -21,85 +19,29 @@ public class RoomDAO {
         return r;
     }
 
-    // ==========================================
-    // CÁC HÀM CRUD CHÍNH
-    // ==========================================
-
-    // 1. Lấy danh sách tất cả phòng họp
     public List<Room> getAllRooms() throws SQLException {
-        List<Room> list = new ArrayList<>();
-        String sql = "SELECT * FROM rooms";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                // Gọi hàm helper thay vì viết lại 5 dòng code
-                list.add(mapResultSetToRoom(rs));
-            }
-        }
-        return list;
+        return executeQuery("SELECT * FROM rooms");
     }
 
-    // 2. Thêm phòng họp mới
+    public Room getRoomById(int roomId) throws SQLException {
+        return executeQueryForSingleObject("SELECT * FROM rooms WHERE roomId=?", roomId);
+    }
+
+    public List<Room> getRoomByName(String keyword) throws SQLException {
+        return executeQuery("SELECT * FROM rooms WHERE roomName LIKE ?", "%" + keyword + "%");
+    }
+
     public boolean insertRoom(Room room) throws SQLException {
         String sql = "INSERT INTO rooms (roomName, capacity, location, fixedDevice) VALUES (?, ?, ?, ?)";
         return executeUpdate(sql, room.getRoomName(), room.getCapacity(), room.getLocation(), room.getFixedDevice());
     }
 
-    // 3. Cập nhật thông tin phòng họp
     public boolean updateRoom(Room room) throws SQLException {
         String sql = "UPDATE rooms SET roomName=?, capacity=?, location=?, fixedDevice=? WHERE roomId=?";
         return executeUpdate(sql, room.getRoomName(), room.getCapacity(), room.getLocation(), room.getFixedDevice(), room.getRoomId());
     }
 
-    // 4. Xóa phòng họp
     public boolean deleteRoom(int roomId) throws SQLException {
-        String sql = "DELETE FROM rooms WHERE roomId=?";
-        return executeUpdate(sql, roomId);
-    }
-
-    // 5. Lấy thông tin phòng theo ID
-    public Room getRoomById(int roomId) throws SQLException {
-        String sql = "SELECT * FROM rooms WHERE roomId=?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, roomId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToRoom(rs);
-                }
-            }
-        }
-        return null;
-    }
-
-    // 6. Lấy thông tin phòng theo tên
-    public List<Room> getRoomByName(String keyword) throws SQLException {
-        List<Room> list = new ArrayList<>();
-        String sql = "SELECT * FROM rooms WHERE roomName LIKE ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, "%" + keyword + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSetToRoom(rs)); // Tái sử dụng helper
-                }
-            }
-        }
-        return list;
-    }
-
-    // ==========================================
-    // HÀM HELPER: Dùng chung cho Insert/Update/Delete (Nâng cao)
-    // ==========================================
-    private boolean executeUpdate(String sql, Object... params) throws SQLException {
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            // Set các tham số tự động dựa trên số lượng arguments truyền vào
-            for (int i = 0; i < params.length; i++) {
-                ps.setObject(i + 1, params[i]);
-            }
-            return ps.executeUpdate() > 0;
-        }
+        return executeUpdate("DELETE FROM rooms WHERE roomId=?", roomId);
     }
 }

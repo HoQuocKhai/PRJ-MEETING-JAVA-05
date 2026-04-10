@@ -12,8 +12,8 @@ public class AppConsole {
                 menuLogin();
                 int choice = InputValidation.inputInt();
                 switch (choice) {
-                    case 1 -> loggedInUser = LoginConsole.login();
-                    case 2 -> RegisterEmployee.register();
+                    case 1 -> loggedInUser = AuthConsole.login();
+                    case 2 -> AuthConsole.register();
                     case 0 -> System.exit(0);
                     default -> System.out.println("Chọn lại!");
                 }
