@@ -61,4 +61,9 @@ public class UserService {
     public boolean updateProfile(User user) throws Exception {
         return userDAO.updateUserProfile(user);
     }
+
+    // Hàm lấy danh sách Support Staff
+    public java.util.List<User> getSupportStaffs() throws Exception {
+        return userDAO.getSupportStaffs();
+    }
 }

@@ -6,6 +6,9 @@ public class ServiceItem {
     private String unit;
     private double price;
     private String description;
+    
+    // Bổ sung thuộc tính DTO để mapping số lượng trong bảng n-n (booking_services)
+    private int orderQuantity;
 
     public ServiceItem() {}
 
@@ -15,6 +18,14 @@ public class ServiceItem {
         this.unit = unit;
         this.price = price;
         this.description = description;
+    }
+
+    public int getOrderQuantity() {
+        return orderQuantity;
+    }
+
+    public void setOrderQuantity(int orderQuantity) {
+        this.orderQuantity = orderQuantity;
     }
 
     public int getServiceId() {

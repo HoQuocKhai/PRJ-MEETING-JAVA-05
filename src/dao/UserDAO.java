@@ -92,4 +92,34 @@ public class UserDAO {
             throw new Exception("Lỗi Database khi cập nhật user: " + e.getMessage());
         }
     }
+
+    public java.util.List<User> getSupportStaffs() throws Exception {
+        String sql = "SELECT * FROM users WHERE roleUser = 'SUPPORT_STAFF'";
+        java.util.List<User> list = new java.util.ArrayList<>();
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    User user = new User();
+                    user.setUserId(rs.getInt("userId"));
+                    user.setUsername(rs.getString("username"));
+                    user.setPassword(rs.getString("password"));
+                    user.setDepartment(rs.getString("department"));
+                    
+                    String roleStr = rs.getString("roleUser");
+                    if (roleStr != null) {
+                        user.setRole(model.Enum.Role.valueOf(roleStr));
+                    }
+                    
+                    user.setContact(rs.getString("contact"));
+                    user.setPhoneNumber(rs.getString("phoneNumber"));
+                    list.add(user);
+                }
+                return list;
+            }
+        } catch (SQLException e) {
+            throw new Exception("Lỗi Database khi lấy danh sách SUPPORT_STAFF: " + e.getMessage());
+        }
+    }
 }

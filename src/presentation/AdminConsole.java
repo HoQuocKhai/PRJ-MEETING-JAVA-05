@@ -10,6 +10,7 @@ public class AdminConsole {
     private static final UserService userService = new UserService();
     private static final RoomService roomService = new RoomService();
     private static final service.EquipmentService equipmentService = new service.EquipmentService();
+    private static final service.BookingService bookingService = new service.BookingService();
 
     public static void displayMenu(User admin) {
         boolean back = false;
@@ -18,8 +19,9 @@ public class AdminConsole {
             System.out.println("1. Quản lý người dùng (Thêm Admin/Support Staff)");
             System.out.println("2. Quản lý phòng họp");
             System.out.println("3. Quản lý thiết bị di động.");
-            System.out.println("4. Xem báo cáo hệ thống");
-            System.out.println("5. Xem/Cập nhật hồ sơ cá nhân");
+            System.out.println("4. Quản lý Đặt phòng (Duyệt/Từ chối)");
+            System.out.println("5. Báo cáo Thống kê & Xuất Hóa đơn");
+            System.out.println("6. Xem/Cập nhật hồ sơ cá nhân");
             System.out.println("0. Đăng xuất");
             System.out.print("Lựa chọn: ");
 
@@ -28,7 +30,9 @@ public class AdminConsole {
                 case 1 -> createStaff();
                 case 2 -> manageRooms();
                 case 3 -> manageEquipments();
-                case 5 -> ProfileConsole.manageProfile(admin);
+                case 4 -> manageBookings();
+                case 5 -> viewReportsAndExport();
+                case 6 -> ProfileConsole.manageProfile(admin);
                 case 0 -> back = true;
                 default -> System.out.println("Lựa chọn không hợp lệ!");
             }
@@ -221,6 +225,99 @@ public class AdminConsole {
                 case 0 -> back = true;
                 default -> System.out.println("Lựa chọn không hợp lệ!");
             }
+        }
+    }
+
+    // Quản lý duyệt/từ chối Booking
+    public static void manageBookings() {
+        System.out.println("\n--- QUẢN LÝ ĐẶT PHÒNG (DUYỆT/TỪ CHỐI) ---");
+        try {
+            java.util.List<model.Booking> pendingList = bookingService.getPendingBookings();
+            if (pendingList.isEmpty()) {
+                System.out.println("=> Không có yêu cầu đặt phòng nào đang chờ duyệt (PENDING).");
+                return;
+            }
+
+            System.out.println("Danh sách các Booking PENDING:");
+            System.out.printf("%-5s | %-10s | %-10s | %-20s | %-20s\n", "ID", "User ID", "Room ID", "Start Time", "End Time");
+            for (model.Booking b : pendingList) {
+                System.out.printf("%-5d | %-10d | %-10d | %-20s | %-20s\n", 
+                        b.getBookingId(), b.getUserId(), b.getRoomId(), b.getStartTime(), b.getEndTime());
+            }
+
+            System.out.print("Nhập ID Booking muốn xử lý (hoặc 0 để thoát): ");
+            int bookingId = InputValidation.inputInt();
+            if (bookingId == 0) return;
+
+            System.out.println("Bạn muốn (1) Duyệt hay (2) Từ chối?");
+            System.out.print("Lựa chọn: ");
+            int action = InputValidation.inputInt();
+
+            if (action == 2) {
+                if (bookingService.rejectBooking(bookingId)) {
+                    System.out.println("=> Đã TỪ CHỐI yêu cầu đặt phòng thành công.");
+                } else {
+                    System.out.println("=> Từ chối thất bại.");
+                }
+            } else if (action == 1) {
+                java.util.List<User> staffList = userService.getSupportStaffs();
+                if (staffList.isEmpty()) {
+                    System.out.println("=> Không có nhân viên Support Staff nào trong hệ thống! Không thể duyệt gán việc.");
+                    return;
+                }
+
+                System.out.println("\nDanh sách nhân viên Support Staff:");
+                for (User staff : staffList) {
+                    System.out.println("ID: " + staff.getUserId() + " - Name: " + staff.getUsername());
+                }
+
+                System.out.print("Nhập ID Nhân viên hỗ trợ để phân công: ");
+                int staffId = InputValidation.inputInt();
+
+                boolean validStaff = staffList.stream().anyMatch(s -> s.getUserId() == staffId);
+                if (!validStaff) {
+                    System.out.println("=> Lỗi: ID nhân viên không hợp lệ. Hủy thao tác.");
+                    return;
+                }
+
+                if (bookingService.approveBooking(bookingId, staffId)) {
+                    System.out.println("=> DUYỆT ĐẶT PHÒNG THÀNH CÔNG! Đã phân công cho Support Staff ID " + staffId);
+                }
+            } else {
+                System.out.println("=> Lựa chọn không hợp lệ. Hủy thao tác.");
+            }
+        } catch (Exception e) {
+            System.out.println("=> Lỗi khi xử lý duyệt đặt phòng: " + e.getMessage());
+        }
+    }
+
+    private static void viewReportsAndExport() {
+        System.out.println("\n--- TỔNG QUAN BÁO CÁO & THỐNG KÊ ---");
+        try {
+            // 1. In thống kê phòng
+            bookingService.printRoomUsageStatistics();
+
+            // 2. In doanh thu tháng hiện tại
+            java.time.LocalDate now = java.time.LocalDate.now();
+            double monthlyRevenue = bookingService.calculateCompletedRevenue(now.getMonthValue(), now.getYear());
+            System.out.println("\n- Tổng doanh thu Dịch vụ (Tháng " + now.getMonthValue() + "/" + now.getYear() + "): " 
+                    + String.format("%,.0f VNĐ", monthlyRevenue));
+            
+            // 3. Sub-menu Xuất bill
+            System.out.println("\nBạn có muốn XUẤT HÓA ĐƠN cho một cuộc họp đã hoàn tất (READY) không?");
+            System.out.println("1. Xuất hóa đơn ra File (.txt)");
+            System.out.println("0. Quay Lại");
+            System.out.print("Lựa chọn: ");
+            int option = InputValidation.inputInt();
+
+            if (option == 1) {
+                System.out.print("Nhập Booking ID cần xuất hóa đơn: ");
+                int bId = InputValidation.inputInt();
+                bookingService.exportBill(bId);
+            }
+
+        } catch (Exception e) {
+            System.out.println("=> Lỗi hệ thống Báo cáo: " + e.getMessage());
         }
     }
 }
