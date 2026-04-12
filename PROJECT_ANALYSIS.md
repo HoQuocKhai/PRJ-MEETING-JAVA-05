@@ -127,12 +127,12 @@ Những công việc nặng nhọc nhất như kê ghế, nối dây mạng, mua
 
 ```mermaid
 graph TD
-    A([SupportStaffConsole]) --> B[Quét DB: supportStaffId của tôi \n AND trạng thái = APPROVED \n AND Prep Status != READY]
+    A([SupportStaffConsole]) --> B[Quét DB: supportStaffId của tôi <br> AND trạng thái = APPROVED <br> AND Prep Status != READY]
     B --> C{Có Task nào không?}
     C -->|Không| D((Kết thúc ra menu))
     C -->|Có Task| E[In Danh Sách Nhiệm Vụ]
     E --> F[Nhập ID Booking cần bắt tay thực hiện]
-    F --> G[IN CHI TIẾT DAO JOIN 3 BẢNG:\nPhòng? | Thiết bị mang theo? | DV yêu cầu?]
+    F --> G[IN CHI TIẾT DAO JOIN 3 BẢNG:<br>Phòng?<br>Thiết bị mang theo?<br>DV yêu cầu?]
     G --> H{Xác nhận đổi trạng thái Setup}
     H -->|Đang vào việc| I[PREPARING]
     H -->|Phòng đã tinh tươm| J[READY]
