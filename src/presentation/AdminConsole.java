@@ -9,6 +9,7 @@ import util.InputValidation;
 public class AdminConsole {
     private static final UserService userService = new UserService();
     private static final RoomService roomService = new RoomService();
+    private static final service.EquipmentService equipmentService = new service.EquipmentService();
 
     public static void displayMenu(User admin) {
         boolean back = false;
@@ -167,14 +168,55 @@ public class AdminConsole {
             int choice = InputValidation.inputInt();
 
             switch (choice) {
-                case 1 -> roomService.displayAllRooms();
+                case 1 -> equipmentService.displayAllEquipments();
                 case 2 -> {
-
+                    System.out.print("Nhập tên thiết bị: ");
+                    String name = InputValidation.inputString();
+                    System.out.print("Nhập số lượng: ");
+                    int quantity = InputValidation.inputInt();
+                    System.out.print("Nhập số lượng sẵn có: ");
+                    int available = InputValidation.inputInt();
+                    System.out.print("Nhập trạng thái (ACTIVE, MAINTENANCE, BROKEN): ");
+                    String statusStr = InputValidation.inputString();
+                    model.Enum.EquipmentStatus status;
+                    try {
+                        status = model.Enum.EquipmentStatus.valueOf(statusStr.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Trạng thái không hợp lệ. Hủy thao tác.");
+                        break;
+                    }
+                    equipmentService.addEquipment(name, quantity, available, status);
                 }// add
                 case 3 -> {
+                    System.out.print("Nhập ID thiết bị cần sửa: ");
+                    int eqId = InputValidation.inputInt();
+                    System.out.print("Nhập tên thiết bị mới: ");
+                    String name = InputValidation.inputString();
+                    System.out.print("Nhập số lượng mới: ");
+                    int quantity = InputValidation.inputInt();
+                    System.out.print("Nhập số lượng sẵn có mới: ");
+                    int available = InputValidation.inputInt();
+                    System.out.print("Nhập trạng thái mới (ACTIVE, MAINTENANCE, BROKEN): ");
+                    String statusStr = InputValidation.inputString();
+                    model.Enum.EquipmentStatus status;
+                    try {
+                        status = model.Enum.EquipmentStatus.valueOf(statusStr.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Trạng thái không hợp lệ. Hủy thao tác.");
+                        break;
+                    }
+                    equipmentService.updateEquipment(eqId, name, quantity, available, status);
                 }// update
                 case 4 -> {
-
+                    System.out.print("Nhập ID thiết bị cần xóa: ");
+                    int eqId = InputValidation.inputInt();
+                    System.out.print("Bạn có chắc chắn muốn xóa thiết bị ID " + eqId + "? (Y/N): ");
+                    String confirm = InputValidation.inputString();
+                    if (confirm.equalsIgnoreCase("Y")) {
+                        equipmentService.deleteEquipment(eqId);
+                    } else {
+                        System.out.println("=> Đã hủy thao tác xóa.");
+                    }
                 }// delete
                 case 0 -> back = true;
                 default -> System.out.println("Lựa chọn không hợp lệ!");
