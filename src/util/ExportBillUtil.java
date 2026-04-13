@@ -1,8 +1,8 @@
 package util;
 
 import model.Booking;
-import model.Equipment;
-import model.ServiceItem;
+import model.dto.BookingEquipmentDetail;
+import model.dto.BookingServiceDetail;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,7 +15,7 @@ public class ExportBillUtil {
 
     private static final String BILL_DIR = "out/bills/";
 
-    public static boolean exportBillToFile(Booking b, double totalServiceCost, List<Equipment> eqList, List<ServiceItem> svList) {
+    public static boolean exportBillToFile(Booking b, double totalServiceCost, List<BookingEquipmentDetail> eqList, List<BookingServiceDetail> svList) {
         // Đảm bảo thư mục tồn tại
         File directory = new File(BILL_DIR);
         if (!directory.exists()) {
@@ -45,8 +45,9 @@ public class ExportBillUtil {
             if (eqList == null || eqList.isEmpty()) {
                 writer.write("=> Không sử dụng thiết bị kèm theo.\n");
             } else {
-                for (Equipment eq : eqList) {
-                    writer.write(String.format("- %-25s : %d (Thiết bị nội bộ - Miễn phí)\n", eq.getEquipmentName(), eq.getQuantity()));
+                for (BookingEquipmentDetail eq : eqList) {
+                    writer.write(String.format("- %-25s : %d (Thiết bị nội bộ - Miễn phí)\n",
+                            eq.getEquipmentName(), eq.getBorrowedQuantity()));
                 }
             }
 
@@ -54,10 +55,10 @@ public class ExportBillUtil {
             if (svList == null || svList.isEmpty()) {
                 writer.write("=> Không sử dụng dịch vụ trả phí.\n");
             } else {
-                for (ServiceItem sv : svList) {
-                    double lineTotal = sv.getPrice() * sv.getOrderQuantity();
-                    writer.write(String.format("- %-20s : %d %-10s x %,.0f VNĐ = %,.0f VNĐ\n", 
-                            sv.getServiceName(), sv.getOrderQuantity(), sv.getUnit(), sv.getPrice(), lineTotal));
+                for (BookingServiceDetail sv : svList) {
+                    double lineTotal = sv.getPrice() * sv.getOrderedQuantity();
+                    writer.write(String.format("- %-20s : %d %-10s x %,.0f VND = %,.0f VND\n",
+                            sv.getServiceName(), sv.getOrderedQuantity(), sv.getUnit(), sv.getPrice(), lineTotal));
                 }
             }
 

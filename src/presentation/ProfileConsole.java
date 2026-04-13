@@ -1,11 +1,12 @@
 package presentation;
 
 import model.User;
+import service.IUserService;
 import service.UserService;
 import util.InputValidation;
 
 public class ProfileConsole {
-    private static final UserService userService = new UserService();
+    private static final IUserService userService = new UserService();
 
     public static void manageProfile(User loggedInUser) {
         if (loggedInUser == null) return;

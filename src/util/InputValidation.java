@@ -69,4 +69,16 @@ public class InputValidation {
             System.out.print("Phone number không hợp lệ! Vui lòng nhập đúng hoặc nhấn Enter để bỏ qua (VD: 0345832941): ");
         }
     }
+
+    /**
+     * I-G: Nhập số nguyên dương (> 0). Vòng lặp đến khi hợp lệ.
+     * Dùng cho các trường: số lượng mượn, số người tham gia, số lượng dịch vụ.
+     */
+    public static int inputPositiveInt() {
+        while (true) {
+            int val = inputInt();
+            if (val > 0) return val;
+            System.out.print("Vui lòng nhập số nguyên dương (> 0): ");
+        }
+    }
 }

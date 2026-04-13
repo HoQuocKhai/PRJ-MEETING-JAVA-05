@@ -1,125 +1,55 @@
 package dao;
 
 import model.User;
-import util.DatabaseConnection;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
-public class UserDAO {
+public class UserDAO extends BaseDAO<User> {
+
+    @Override
+    protected User mapResultSetToObject(ResultSet rs) throws SQLException {
+        User user = new User();
+        user.setUserId(rs.getInt("userId"));
+        user.setUsername(rs.getString("username"));
+        user.setPassword(rs.getString("password"));
+        user.setDepartment(rs.getString("department"));
+        
+        String roleStr = rs.getString("roleUser");
+        if (roleStr != null) {
+            user.setRole(model.Enum.Role.valueOf(roleStr));
+        }
+        
+        user.setContact(rs.getString("contact"));
+        user.setPhoneNumber(rs.getString("phoneNumber"));
+        return user;
+    }
+
     // Hàm kiểm tra username đã tồn tại chưa
     public boolean isUsernameExist(String username) throws Exception {
-        String sql = "SELECT userId FROM users WHERE username = ?";
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
-            pstmt.setString(1, username);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next();
-            }
-        } catch (SQLException e) {
-            throw new Exception("Lỗi Database khi kiểm tra username: " + e.getMessage());
-        }
+        User u = executeQueryForSingleObject("SELECT * FROM users WHERE username = ?", username);
+        return u != null;
     }
 
     // Hàm thêm User mới vào Database
     public boolean insertUser(User user) throws Exception {
         String sql = "INSERT INTO users (username, password, department, roleUser, contact, phoneNumber) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
-            pstmt.setString(1, user.getUsername());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getDepartment());
-            pstmt.setString(4, user.getRole().name());
-            pstmt.setString(5, user.getContact());
-            pstmt.setString(6, user.getPhoneNumber());
-
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            throw new Exception("Lỗi Database khi thêm user: " + e.getMessage());
-        }
+        return executeUpdate(sql, user.getUsername(), user.getPassword(), user.getDepartment(), user.getRole().name(), user.getContact(), user.getPhoneNumber());
     }
 
     // Hàm lấy thông tin User theo username
     public User getUserByUsername(String username) throws Exception {
-        String sql = "SELECT * FROM users WHERE username = ?";
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
-            pstmt.setString(1, username);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    User user = new User();
-                    user.setUserId(rs.getInt("userId"));
-                    user.setUsername(rs.getString("username"));
-                    user.setPassword(rs.getString("password"));
-                    user.setDepartment(rs.getString("department"));
-                    
-                    String roleStr = rs.getString("roleUser");
-                    if (roleStr != null) {
-                        user.setRole(model.Enum.Role.valueOf(roleStr));
-                    }
-                    
-                    user.setContact(rs.getString("contact"));
-                    user.setPhoneNumber(rs.getString("phoneNumber"));
-                    return user;
-                }
-                return null;
-            }
-        } catch (SQLException e) {
-            throw new Exception("Lỗi Database khi lấy thộng tin user: " + e.getMessage());
-        }
+        return executeQueryForSingleObject("SELECT * FROM users WHERE username = ?", username);
     }
 
     // Hàm cập nhật thông tin User
     public boolean updateUserProfile(User user) throws Exception {
         String sql = "UPDATE users SET department = ?, contact = ?, phoneNumber = ? WHERE userId = ?";
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
-            pstmt.setString(1, user.getDepartment());
-            pstmt.setString(2, user.getContact());
-            pstmt.setString(3, user.getPhoneNumber());
-            pstmt.setInt(4, user.getUserId());
-
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
-        } catch (SQLException e) {
-            throw new Exception("Lỗi Database khi cập nhật user: " + e.getMessage());
-        }
+        return executeUpdate(sql, user.getDepartment(), user.getContact(), user.getPhoneNumber(), user.getUserId());
     }
 
-    public java.util.List<User> getSupportStaffs() throws Exception {
+    public List<User> getSupportStaffs() throws Exception {
         String sql = "SELECT * FROM users WHERE roleUser = 'SUPPORT_STAFF'";
-        java.util.List<User> list = new java.util.ArrayList<>();
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = connection.prepareStatement(sql)) {
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    User user = new User();
-                    user.setUserId(rs.getInt("userId"));
-                    user.setUsername(rs.getString("username"));
-                    user.setPassword(rs.getString("password"));
-                    user.setDepartment(rs.getString("department"));
-                    
-                    String roleStr = rs.getString("roleUser");
-                    if (roleStr != null) {
-                        user.setRole(model.Enum.Role.valueOf(roleStr));
-                    }
-                    
-                    user.setContact(rs.getString("contact"));
-                    user.setPhoneNumber(rs.getString("phoneNumber"));
-                    list.add(user);
-                }
-                return list;
-            }
-        } catch (SQLException e) {
-            throw new Exception("Lỗi Database khi lấy danh sách SUPPORT_STAFF: " + e.getMessage());
-        }
+        return executeQuery(sql);
     }
 }

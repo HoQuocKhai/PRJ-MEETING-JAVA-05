@@ -1,14 +1,16 @@
 package model;
 
+/**
+ * Entity ánh xạ bảng `services`.
+ * NOTE: Trường `orderQuantity` (số lượng đặt trong 1 booking cụ thể) đã được tách sang
+ * {@link model.dto.BookingServiceDetail} để đúng SRP — Entity không nên chứa dữ liệu DTO.
+ */
 public class ServiceItem {
     private int serviceId;
     private String serviceName;
     private String unit;
     private double price;
     private String description;
-    
-    // Bổ sung thuộc tính DTO để mapping số lượng trong bảng n-n (booking_services)
-    private int orderQuantity;
 
     public ServiceItem() {}
 
@@ -20,13 +22,6 @@ public class ServiceItem {
         this.description = description;
     }
 
-    public int getOrderQuantity() {
-        return orderQuantity;
-    }
-
-    public void setOrderQuantity(int orderQuantity) {
-        this.orderQuantity = orderQuantity;
-    }
 
     public int getServiceId() {
         return serviceId;

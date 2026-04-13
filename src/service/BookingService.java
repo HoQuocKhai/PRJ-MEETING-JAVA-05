@@ -2,23 +2,24 @@ package service;
 
 import dao.BookingDAO;
 import dao.EquipmentDAO;
-import dao.NotificationDAO;
 import dao.ServiceItemDAO;
 import model.Booking;
 import model.BookingDetailEquipment;
 import model.BookingDetailService;
 import model.Room;
 import model.ServiceItem;
+import service.NotificationService;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class BookingService {
+public class BookingService implements IBookingService {
     private final BookingDAO bookingDAO = new BookingDAO();
     private final EquipmentDAO equipmentDAO = new EquipmentDAO();
     private final ServiceItemDAO serviceItemDAO = new ServiceItemDAO();
-    private final NotificationDAO notificationDAO = new NotificationDAO();
+    // I-C fix: Dùng INotificationService thay vì NotificationDAO trực tiếp (SRP)
+    private final INotificationService notificationService = new NotificationService();
 
     /**
      * Trả về danh sách phòng trống dựa trên validation về thời gian và số người yêu cầu
@@ -51,21 +52,20 @@ public class BookingService {
     }
 
     /**
-     * Hàm tính tổng chi phí dịch vụ (Dùng biểu giá từ DB tính nhân số lượng yêu cầu)
+     * I-B fix: 1 query thay vì N queries.
+     * Xây dựng price map từ getAllServices() rồi tính tổng chính xác không loop DB.
      */
     public double calculateTotalServiceCost(List<BookingDetailService> svList) throws Exception {
-        double total = 0.0;
-        if (svList == null || svList.isEmpty()) {
-            return total;
-        }
+        if (svList == null || svList.isEmpty()) return 0.0;
 
-        for (BookingDetailService detail : svList) {
-            ServiceItem service = serviceItemDAO.getServiceById(detail.getServiceId());
-            if (service != null) {
-                total += service.getPrice() * detail.getQuantity();
-            }
-        }
-        return total;
+        java.util.Map<Integer, Double> priceMap = serviceItemDAO.getAllServices().stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        ServiceItem::getServiceId,
+                        ServiceItem::getPrice));
+
+        return svList.stream()
+                .mapToDouble(d -> priceMap.getOrDefault(d.getServiceId(), 0.0) * d.getQuantity())
+                .sum();
     }
 
     public List<Booking> getPendingBookings() throws Exception {
@@ -96,7 +96,8 @@ public class BookingService {
 
         boolean success = bookingDAO.approveAndAssign(bookingId, staffId);
         if (success) {
-            notificationDAO.insertNotification(booking.getUserId(), "CHÚC MỪNG: Lịch đặt phòng #" + bookingId + " của bạn đã được Admin phê duyệt!");
+            notificationService.insertNotification(booking.getUserId(),
+                    "CHÚC MỮNG: Lịch đặt phòng #" + bookingId + " của bạn đã được Admin phê duyệt!");
         }
         return success;
     }
@@ -111,7 +112,8 @@ public class BookingService {
         }
         boolean success = bookingDAO.rejectBooking(bookingId);
         if (success) {
-            notificationDAO.insertNotification(booking.getUserId(), "RẤT TIẾC: Lịch đặt phòng #" + bookingId + " của bạn đã BỊ TỪ CHỐI do lịch ban giám đốc hoặc trùng đột xuất.");
+            notificationService.insertNotification(booking.getUserId(),
+                    "RẤT TIẼ: Lịch đặt phòng #" + bookingId + " của bạn đã BỊ TỪ CHỐI do lịch ban giám đốc hoặc trùng đột xuất.");
         }
         return success;
     }
@@ -139,8 +141,8 @@ public class BookingService {
         return bookingDAO.calculateCompletedRevenue(month, year);
     }
 
-    public void printRoomUsageStatistics() throws Exception {
-        bookingDAO.printRoomUsageStatistics();
+    public java.util.Map<Room, Integer> getRoomUsageStatistics() throws Exception {
+        return bookingDAO.getRoomUsageStatistics();
     }
 
     public boolean exportBill(int bookingId) throws Exception {
@@ -153,13 +155,10 @@ public class BookingService {
         }
 
         java.util.List<model.Equipment> eqList = bookingDAO.getEquipmentsByBookingId(bookingId);
-        java.util.List<model.ServiceItem> svList = bookingDAO.getServicesByBookingId(bookingId);
+        java.util.List<model.dto.BookingServiceDetail> svList = bookingDAO.getServicesByBookingId(bookingId);
 
         // Tính tổng tiền service
-        double totalCost = 0;
-        for (model.ServiceItem s : svList) {
-            totalCost += s.getPrice() * s.getOrderQuantity();
-        }
+        double totalCost = svList.stream().mapToDouble(model.dto.BookingServiceDetail::getSubTotal).sum();
 
         return util.ExportBillUtil.exportBillToFile(booking, totalCost, eqList, svList);
     }

@@ -2,13 +2,14 @@ package presentation;
 
 import exception.InvalidRegisterException;
 import model.User;
+import service.IUserService;
 import service.UserService;
 import util.InputValidation;
 
 import static util.InputValidation.inputString;
 
 public class AuthConsole {
-    private static final UserService userService = new UserService();
+    private static final IUserService userService = new UserService();
 
     public static User login() {
         System.out.println("============= Đăng nhập =============");
@@ -32,23 +33,27 @@ public class AuthConsole {
         return null;
     }
 
-    public static void register() throws Exception {
+    public static void register() {
         System.out.println("============= Đăng ký =============");
-        String userName = inputUsername();
-        String passWord = inputConfirmPassword();
-        String email = InputValidation.inputEmail();
+        try {
+            String userName = inputUsername();
+            String passWord = inputConfirmPassword();
+            String email = InputValidation.inputEmail();
 
-        System.out.print("Nhập phòng ban: ");
-        String department = inputString();
+            System.out.print("Nhập phòng ban: ");
+            String department = inputString();
 
-        String phoneNumber = InputValidation.inputPhoneNumber();
+            String phoneNumber = InputValidation.inputPhoneNumber();
 
-        userService.registerEmployee(userName, passWord, department, email, phoneNumber);
+            userService.registerEmployee(userName, passWord, department, email, phoneNumber);
 
-        System.out.println("Đăng ký thành công.");
+            System.out.println("Đăng ký thành công.");
+        } catch (Exception e) {
+            System.out.println("=> Lỗi hệ thống khi đăng ký: " + e.getMessage());
+        }
     }
 
-    public static String inputUsername() throws Exception {
+    private static String inputUsername() throws Exception {
         while (true) {
             System.out.print("Nhập tên đăng nhập: ");
             String userName = inputString();
@@ -61,7 +66,7 @@ public class AuthConsole {
         }
     }
 
-    public static String inputConfirmPassword() throws InvalidRegisterException {
+    private static String inputConfirmPassword() throws InvalidRegisterException {
         while (true) {
             System.out.print("Nhập mật khẩu: ");
             String passWord = inputString();

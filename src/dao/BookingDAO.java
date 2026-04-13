@@ -46,7 +46,7 @@ public class BookingDAO extends BaseDAO<Booking> {
         b.setCreatedAt(rs.getTimestamp("createdAt"));
         
         // Nếu có xử lý participants lưu động, phải có logic thêm ở đây (hiện tại DB chưa có participants)
-        // b.setParticipants(rs.getInt("participants"));
+        b.setParticipants(rs.getInt("participants"));
 
         return b;
     }
@@ -108,15 +108,16 @@ public class BookingDAO extends BaseDAO<Booking> {
             conn.setAutoCommit(false); // Bắt đầu Transaction
 
             // 1. Insert thông tin chính vào bảng bookings
-            String sqlBooking = "INSERT INTO bookings(userId, roomId, startTime, endTime, bookingStatus, preparationStatus) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+            String sqlBooking = "INSERT INTO bookings(userId, roomId, startTime, endTime, participants, bookingStatus, preparationStatus) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
             psBooking = conn.prepareStatement(sqlBooking, Statement.RETURN_GENERATED_KEYS);
             psBooking.setInt(1, b.getUserId());
             psBooking.setInt(2, b.getRoomId());
             psBooking.setTimestamp(3, Timestamp.valueOf(b.getStartTime()));
             psBooking.setTimestamp(4, Timestamp.valueOf(b.getEndTime()));
-            psBooking.setString(5, b.getBookingStatus().name());
-            psBooking.setString(6, b.getPreparationStatus().name());
+            psBooking.setInt(5, b.getParticipants());
+            psBooking.setString(6, b.getBookingStatus().name());
+            psBooking.setString(7, b.getPreparationStatus().name());
 
             int affectedRows = psBooking.executeUpdate();
             if (affectedRows == 0) {
@@ -215,9 +216,13 @@ public class BookingDAO extends BaseDAO<Booking> {
         return executeUpdate(sql, newStatus.name(), bookingId);
     }
 
-    public List<model.Equipment> getEquipmentsByBookingId(int bookingId) throws SQLException {
-        List<model.Equipment> list = new ArrayList<>();
-        String sql = "SELECT e.equipmentId, e.equipmentName, be.quantity, e.available, e.status " +
+    /**
+     * I-D fix: Trả về BookingEquipmentDetail DTO thay vì tái sử dụng Equipment entity.
+     * Equipment.quantity = tổng kho, borrowedQuantity = số lượng mượn trong booking này.
+     */
+    public List<model.dto.BookingEquipmentDetail> getEquipmentsByBookingId(int bookingId) throws SQLException {
+        List<model.dto.BookingEquipmentDetail> list = new ArrayList<>();
+        String sql = "SELECT e.equipmentId, e.equipmentName, be.quantity AS borrowedQty, e.available, e.status " +
                      "FROM booking_equipments be JOIN equipments e ON be.equipmentId = e.equipmentId " +
                      "WHERE be.bookingId = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -225,22 +230,22 @@ public class BookingDAO extends BaseDAO<Booking> {
             ps.setInt(1, bookingId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    model.Equipment eq = new model.Equipment();
-                    eq.setEquipmentId(rs.getInt("equipmentId"));
-                    eq.setEquipmentName(rs.getString("equipmentName"));
-                    eq.setQuantity(rs.getInt("quantity")); // Mượn tạm trường quantity để lưu số lượng cần mượn
-                    eq.setAvailable(rs.getInt("available"));
+                    model.dto.BookingEquipmentDetail detail = new model.dto.BookingEquipmentDetail();
+                    detail.setEquipmentId(rs.getInt("equipmentId"));
+                    detail.setEquipmentName(rs.getString("equipmentName"));
+                    detail.setBorrowedQuantity(rs.getInt("borrowedQty"));  // số lượng mượn
+                    detail.setAvailableInStock(rs.getInt("available"));
                     String st = rs.getString("status");
-                    if (st != null) eq.setStatus(model.Enum.EquipmentStatus.valueOf(st));
-                    list.add(eq);
+                    if (st != null) detail.setStatus(model.Enum.EquipmentStatus.valueOf(st));
+                    list.add(detail);
                 }
             }
         }
         return list;
     }
 
-    public List<model.ServiceItem> getServicesByBookingId(int bookingId) throws SQLException {
-        List<model.ServiceItem> list = new ArrayList<>();
+    public List<model.dto.BookingServiceDetail> getServicesByBookingId(int bookingId) throws SQLException {
+        List<model.dto.BookingServiceDetail> list = new ArrayList<>();
         String sql = "SELECT s.serviceId, s.serviceName, s.unit, s.price, s.description, bs.quantity " +
                      "FROM booking_services bs JOIN services s ON bs.serviceId = s.serviceId " +
                      "WHERE bs.bookingId = ?";
@@ -249,15 +254,14 @@ public class BookingDAO extends BaseDAO<Booking> {
             ps.setInt(1, bookingId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    model.ServiceItem s = new model.ServiceItem();
-                    s.setServiceId(rs.getInt("serviceId"));
-                    s.setServiceName(rs.getString("serviceName"));
-                    s.setUnit(rs.getString("unit"));
-                    s.setPrice(rs.getDouble("price"));
-                    s.setDescription(rs.getString("description"));
-                    s.setOrderQuantity(rs.getInt("quantity")); // Dùng trường tạm DTO
-                    
-                    list.add(s);
+                    model.dto.BookingServiceDetail detail = new model.dto.BookingServiceDetail();
+                    detail.setServiceId(rs.getInt("serviceId"));
+                    detail.setServiceName(rs.getString("serviceName"));
+                    detail.setUnit(rs.getString("unit"));
+                    detail.setPrice(rs.getDouble("price"));
+                    detail.setDescription(rs.getString("description"));
+                    detail.setOrderedQuantity(rs.getInt("quantity"));
+                    list.add(detail);
                 }
             }
         }
@@ -298,24 +302,29 @@ public class BookingDAO extends BaseDAO<Booking> {
         return total;
     }
 
-    public void printRoomUsageStatistics() throws SQLException {
-        String sql = "SELECT r.roomId, r.roomName, COUNT(b.bookingId) as frequency " +
+    public java.util.Map<Room, Integer> getRoomUsageStatistics() throws SQLException {
+        String sql = "SELECT r.roomId, r.roomName, r.capacity, r.location, r.fixedDevice, COUNT(b.bookingId) as frequency " +
                      "FROM rooms r " +
                      "LEFT JOIN bookings b ON r.roomId = b.roomId " +
-                     "GROUP BY r.roomId, r.roomName " +
+                     "GROUP BY r.roomId, r.roomName, r.capacity, r.location, r.fixedDevice " +
                      "ORDER BY frequency DESC";
         
-        System.out.println("\n--- THỐNG KÊ TẦN SUẤT SỬ DỤNG PHÒNG ---");
-        System.out.printf("%-10s | %-20s | %-15s\n", "Room ID", "Tên Phòng", "Số Lần Mượn");
-        System.out.println("--------------------------------------------------");
+        java.util.Map<Room, Integer> stats = new java.util.LinkedHashMap<>();
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             
             while (rs.next()) {
-                System.out.printf("%-10d | %-20s | %-15d\n", 
-                        rs.getInt("roomId"), rs.getString("roomName"), rs.getInt("frequency"));
+                Room r = new Room();
+                r.setRoomId(rs.getInt("roomId"));
+                r.setRoomName(rs.getString("roomName"));
+                r.setCapacity(rs.getInt("capacity"));
+                r.setLocation(rs.getString("location"));
+                r.setFixedDevice(rs.getString("fixedDevice"));
+                
+                stats.put(r, rs.getInt("frequency"));
             }
         }
+        return stats;
     }
 }

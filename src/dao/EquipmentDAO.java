@@ -23,7 +23,9 @@ public class EquipmentDAO extends BaseDAO<Equipment> {
             try {
                 e.setStatus(EquipmentStatus.valueOf(statusStr.trim().toUpperCase()));
             } catch (IllegalArgumentException ex) {
-                System.err.println("Cảnh báo: Trạng thái không hợp lệ trong DB - " + statusStr);
+                throw new IllegalArgumentException(
+                    "Trạng thái thiết bị không hợp lệ trong DB: '" + statusStr + "'. " +
+                    "Chỉ chấp nhận: ACTIVE, MAINTENANCE, BROKEN.", ex);
             }
         }
         return e;
