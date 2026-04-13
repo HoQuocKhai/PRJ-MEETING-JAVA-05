@@ -8,6 +8,7 @@ import model.BookingDetailEquipment;
 import model.BookingDetailService;
 import model.Room;
 import model.ServiceItem;
+import model.dto.BookingEquipmentDetail;
 import service.NotificationService;
 
 import java.sql.Timestamp;
@@ -154,7 +155,7 @@ public class BookingService implements IBookingService {
             throw new Exception("Lỗi: Booking hiện tại chưa hoàn tất (Chưa READY). Không thể xuất hóa đơn!");
         }
 
-        java.util.List<model.Equipment> eqList = bookingDAO.getEquipmentsByBookingId(bookingId);
+        List<BookingEquipmentDetail> eqList = bookingDAO.getEquipmentsByBookingId(bookingId);
         java.util.List<model.dto.BookingServiceDetail> svList = bookingDAO.getServicesByBookingId(bookingId);
 
         // Tính tổng tiền service

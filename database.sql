@@ -88,15 +88,16 @@ CREATE TABLE notifications (
     FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
--- ==================== DỰ LIỆU MẪU (SEED DATA) ====================
--- Lưu ý: Password các tài khoản này đều là BCrypt hash của chữ: "123456"
+-- ==================== DỮ LIỆU MẪU (SEED DATA) ====================
+-- Lưu ý: Password các tài khoản này đều là BCrypt hash của chuỗi: "123456"
 -- Mật khẩu thật tương ứng: 123456
+-- Hash hợp lệ 60 ký tự, cost=12, tương thích với jbcrypt BCrypt.hashpw()
 
 INSERT INTO users (username, password, department, roleUser, contact, phoneNumber) VALUES 
-('admin1', '$2a$10$CwTycUXWue0Thq9StjUM0u1Krh.E4Wk4c/L3Y0gK5lI/2n30v2W52', 'Hành Chính Nhân Sự', 'ADMIN', 'admin1@company.com', '0912345678'),
-('support_linh', '$2a$10$CwTycUXWue0Thq9StjUM0u1Krh.E4Wk4c/L3Y0gK5lI/2n30v2W52', 'Quản Trị Tòa Nhà', 'SUPPORT_STAFF', 'support1@company.com', '0987654321'),
-('employee_dat', '$2a$10$CwTycUXWue0Thq9StjUM0u1Krh.E4Wk4c/L3Y0gK5lI/2n30v2W52', 'Phát Triển Phần Mềm', 'EMPLOYEE', 'employ1@company.com', '0345678901'),
-('employee_mai', '$2a$10$CwTycUXWue0Thq9StjUM0u1Krh.E4Wk4c/L3Y0gK5lI/2n30v2W52', 'Marketing', 'EMPLOYEE', 'employ2@company.com', '0356789012');
+('admin1',       '$2a$12$2dD/NhxBl4O3dGmEd5BVguaOiTVn7iUVMhVGPuGAkINPT2XhTLmPa', 'Hành Chính Nhân Sự', 'ADMIN',         'admin1@company.com',   '0912345678'),
+('support_linh', '$2a$12$2dD/NhxBl4O3dGmEd5BVguaOiTVn7iUVMhVGPuGAkINPT2XhTLmPa', 'Quản Trị Tòa Nhà',  'SUPPORT_STAFF', 'support1@company.com', '0987654321'),
+('employee_dat', '$2a$12$2dD/NhxBl4O3dGmEd5BVguaOiTVn7iUVMhVGPuGAkINPT2XhTLmPa', 'Phát Triển Phần Mềm','EMPLOYEE',      'employ1@company.com',  '0345678901'),
+('employee_mai', '$2a$12$2dD/NhxBl4O3dGmEd5BVguaOiTVn7iUVMhVGPuGAkINPT2XhTLmPa', 'Marketing',         'EMPLOYEE',      'employ2@company.com',  '0356789012');
 
 INSERT INTO rooms (roomName, capacity, location, fixedDevice) VALUES 
 ('Phòng Hội Đồng', 20, 'Tầng 3 - Tòa A', 'Ghế da, Màn hình LED 85inch, Loa âm trần, Micro không dây, Máy lạnh độc lập'),

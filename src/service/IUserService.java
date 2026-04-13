@@ -15,4 +15,10 @@ public interface IUserService {
     User login(String username, String password) throws Exception;
     boolean updateProfile(User user) throws Exception;
     List<User> getSupportStaffs() throws Exception;
+
+    // ========== Admin User Management ==========
+    List<User> getAllUsers() throws Exception;
+    boolean deleteUser(int userId) throws Exception;
+    boolean updateUserByAdmin(User user) throws Exception;
+    User getUserById(int userId) throws Exception;
 }

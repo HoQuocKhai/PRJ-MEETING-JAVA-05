@@ -42,14 +42,35 @@ public class UserDAO extends BaseDAO<User> {
         return executeQueryForSingleObject("SELECT * FROM users WHERE username = ?", username);
     }
 
-    // Hàm cập nhật thông tin User
+    // Hàm lấy User theo ID
+    public User getUserById(int userId) throws Exception {
+        return executeQueryForSingleObject("SELECT * FROM users WHERE userId = ?", userId);
+    }
+
+    // Hàm lấy toàn bộ danh sách người dùng (sắp xếp theo role rồi username)
+    public List<User> getAllUsers() throws Exception {
+        return executeQuery("SELECT * FROM users ORDER BY roleUser, username");
+    }
+
+    // Hàm cập nhật thông tin User do Admin chỉnh (department, contact, phone, role)
+    public boolean updateUserByAdmin(User user) throws Exception {
+        String sql = "UPDATE users SET department = ?, contact = ?, phoneNumber = ?, roleUser = ? WHERE userId = ?";
+        return executeUpdate(sql, user.getDepartment(), user.getContact(), user.getPhoneNumber(), user.getRole().name(), user.getUserId());
+    }
+
+    // Hàm cập nhật thông tin User (dành cho chính user tự sửa profile)
     public boolean updateUserProfile(User user) throws Exception {
         String sql = "UPDATE users SET department = ?, contact = ?, phoneNumber = ? WHERE userId = ?";
         return executeUpdate(sql, user.getDepartment(), user.getContact(), user.getPhoneNumber(), user.getUserId());
     }
 
+    // Hàm xóa User theo ID
+    public boolean deleteUser(int userId) throws Exception {
+        return executeUpdate("DELETE FROM users WHERE userId = ?", userId);
+    }
+
+    // Hàm lấy danh sách Support Staff (dùng cho booking)
     public List<User> getSupportStaffs() throws Exception {
-        String sql = "SELECT * FROM users WHERE roleUser = 'SUPPORT_STAFF'";
-        return executeQuery(sql);
+        return executeQuery("SELECT * FROM users WHERE roleUser = 'SUPPORT_STAFF'");
     }
 }

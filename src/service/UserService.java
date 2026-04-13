@@ -66,4 +66,26 @@ public class UserService implements IUserService {
     public java.util.List<User> getSupportStaffs() throws Exception {
         return userDAO.getSupportStaffs();
     }
+
+    // ========== Admin User Management ==========
+
+    // Hàm lấy toàn bộ danh sách người dùng
+    public java.util.List<User> getAllUsers() throws Exception {
+        return userDAO.getAllUsers();
+    }
+
+    // Hàm xóa người dùng theo ID
+    public boolean deleteUser(int userId) throws Exception {
+        return userDAO.deleteUser(userId);
+    }
+
+    // Hàm cập nhật thông tin user do admin thực hiện (department, contact, phone, role)
+    public boolean updateUserByAdmin(User user) throws Exception {
+        return userDAO.updateUserByAdmin(user);
+    }
+
+    // Hàm lấy user theo ID
+    public User getUserById(int userId) throws Exception {
+        return userDAO.getUserById(userId);
+    }
 }
