@@ -44,13 +44,15 @@ public class EquipmentManagement {
                 System.out.println("Hiện tại chưa có thiết bị nào trong hệ thống.");
             } else {
                 System.out.println("\n--- DANH SÁCH THIẾT BỊ ---");
-                System.out.printf("%-5s | %-20s | %-10s | %-10s | %-15s\n", "ID", "Tên Thiết Bị", "Số lượng", "Sẵn có", "Trạng thái");
-                System.out.println("-----------------------------------------------------------------------");
+                System.out.printf("%-5s | %-30s | %-10s | %-10s | %-15s%n",
+                        "ID", "Tên Thiết Bị", "Số lượng", "Sẵn có", "Trạng thái");
+                System.out.println("-".repeat(79));
                 for (Equipment e : equipments) {
-                    System.out.printf("%-5d | %-20s | %-10d | %-10d | %-15s\n",
+                    System.out.printf("%-5d | %-30s | %-10d | %-10d | %-15s%n",
                             e.getEquipmentId(), e.getEquipmentName(), e.getQuantity(), e.getAvailable(),
-                            (e.getStatus() != null ? e.getStatus().name() : "N/A"));
+                            e.getStatus() != null ? e.getStatus().name() : "N/A");
                 }
+                System.out.println("Tổng: " + equipments.size() + " loại thiết bị.");
             }
         } catch (Exception e) {
             System.out.println("=> Lỗi khi lấy danh sách thiết bị: " + e.getMessage());

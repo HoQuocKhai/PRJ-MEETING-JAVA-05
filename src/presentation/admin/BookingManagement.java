@@ -26,17 +26,21 @@ public class BookingManagement {
                 return;
             }
 
-            System.out.println("Danh sách các Booking PENDING:");
-            System.out.printf("%-5s | %-10s | %-10s | %-20s | %-20s\n", "ID", "User ID", "Room ID", "Start Time", "End Time");
-            System.out.println("-----------------------------------------------------------------------");
+            System.out.println("Danh sách các Booking đang chờ duyệt (PENDING):");
+            System.out.printf("%-5s | %-10s | %-10s | %-20s | %-20s%n",
+                    "ID", "User ID", "Room ID", "Bắt đầu", "Kết thúc");
+            System.out.println("-".repeat(73));
             for (Booking b : pendingList) {
-                System.out.printf("%-5d | %-10d | %-10d | %-20s | %-20s\n",
-                        b.getBookingId(), b.getUserId(), b.getRoomId(), b.getStartTime(), b.getEndTime());
+                System.out.printf("%-5d | %-10d | %-10d | %-20s | %-20s%n",
+                        b.getBookingId(), b.getUserId(), b.getRoomId(),
+                        b.getStartTime(), b.getEndTime());
             }
+            System.out.println("Tổng: " + pendingList.size() + " booking đang chờ duyệt.");
 
             System.out.print("Nhập ID Booking muốn xử lý (hoặc 0 để thoát): ");
             int bookingId = InputValidation.inputInt();
-            if (bookingId == 0) return;
+            if (bookingId == 0)
+                return;
 
             System.out.println("Bạn muốn (1) Duyệt hay (2) Từ chối?");
             System.out.print("Lựa chọn: ");
@@ -63,7 +67,8 @@ public class BookingManagement {
 
         System.out.println("\nDanh sách nhân viên Support Staff:");
         for (User staff : staffList) {
-            System.out.println("ID: " + staff.getUserId() + " - Name: " + staff.getUsername() + " (" + staff.getDepartment() + ")");
+            System.out.println("ID: " + staff.getUserId() + " - Name: " + staff.getUsername() + " ("
+                    + staff.getDepartment() + ")");
         }
 
         System.out.print("Nhập ID Nhân viên hỗ trợ để phân công: ");

@@ -33,7 +33,7 @@ public class ReportManagement {
     private static void printRoomUsageStats() throws Exception {
         Map<Room, Integer> stats = bookingService.getRoomUsageStatistics();
         System.out.println("\n--- THỐNG KÊ TẦN SUẤT SỬ DỤNG PHÒNG ---");
-        System.out.printf("%-10s | %-20s | %-15s\n", "Room ID", "Tên Phòng", "Số Lần Mượn");
+        System.out.printf("%-10s | %-22s | %-15s\n", "Room ID", "Tên Phòng", "Số Lần Mượn");
         System.out.println("--------------------------------------------------");
         if (stats.isEmpty()) {
             System.out.println("Chưa có dữ liệu thống kê.");

@@ -43,13 +43,17 @@ public class ServiceManagement {
                 System.out.println("Hiện tại chưa có dịch vụ đi kèm nào trong hệ thống.");
             } else {
                 System.out.println("\n--- DANH SÁCH DỊCH VỤ ĐI KÈM ---");
-                System.out.printf("%-5s | %-25s | %-15s | %-15s | %-30s\n", "ID", "Tên Dịch Vụ", "Đơn Vị Tính", "Đơn Giá", "Mô tả");
-                System.out.println("-------------------------------------------------------------------------------------------------");
+                System.out.printf("%-5s | %-32s | %-12s | %-15s | %-30s%n",
+                        "ID", "Tên Dịch Vụ", "Đơn vị", "Đơn giá (VNĐ)", "Mô tả");
+                System.out.println("-".repeat(101));
                 for (ServiceItem s : services) {
-                    System.out.printf("%-5d | %-25s | %-15s | %-15.2f | %-30s\n",
-                            s.getServiceId(), s.getServiceName(), s.getUnit(), s.getPrice(),
-                            (s.getDescription() != null ? s.getDescription() : ""));
+                    System.out.printf("%-5d | %-32s | %-12s | %-15.0f | %-30s%n",
+                            s.getServiceId(), s.getServiceName(),
+                            s.getUnit() != null ? s.getUnit() : "",
+                            s.getPrice(),
+                            s.getDescription() != null ? s.getDescription() : "");
                 }
+                System.out.println("Tổng: " + services.size() + " dịch vụ.");
             }
         } catch (Exception e) {
             System.out.println("=> Lỗi khi lấy danh sách dịch vụ: " + e.getMessage());

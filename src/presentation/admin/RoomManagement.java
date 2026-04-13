@@ -45,12 +45,15 @@ public class RoomManagement {
                 System.out.println("Hiện tại chưa có phòng họp nào trong hệ thống.");
             } else {
                 System.out.println("\n--- DANH SÁCH PHÒNG HỌP ---");
-                System.out.printf("%-5s | %-20s | %-10s | %-20s | %-30s\n", "ID", "Tên Phòng", "Sức chứa", "Vị trí", "Thiết bị cố định");
-                System.out.println("---------------------------------------------------------------------------------------------");
+                System.out.printf("%-5s | %-22s | %-10s | %-22s | %-30s%n",
+                        "ID", "Tên Phòng", "Sức chứa", "Vị trí", "Thiết bị cố định");
+                System.out.println("-".repeat(99));
                 for (Room r : rooms) {
-                    System.out.printf("%-5d | %-20s | %-10d | %-20s | %-30s\n",
-                            r.getRoomId(), r.getRoomName(), r.getCapacity(), r.getLocation(), r.getFixedDevice());
+                    System.out.printf("%-5d | %-22s | %-10d | %-22s | %-30s%n",
+                            r.getRoomId(), r.getRoomName(), r.getCapacity(),
+                            r.getLocation(), r.getFixedDevice());
                 }
+                System.out.println("Tổng: " + rooms.size() + " phòng.");
             }
         } catch (Exception e) {
             System.out.println("=> Lỗi khi lấy danh sách phòng: " + e.getMessage());
@@ -127,15 +130,18 @@ public class RoomManagement {
         try {
             List<Room> list = roomService.getRoomsByName(keyword);
             if (list.isEmpty()) {
-                System.out.println("Hiện tại không có phòng nào tên có chứa từ khóa: " + keyword);
+                System.out.println("Không tìm thấy phòng nào có tên chứa: " + keyword);
             } else {
-                System.out.println("\n--- DANH SÁCH PHÒNG HỌP TÌM THẤY ---");
-                System.out.printf("%-5s | %-20s | %-10s | %-20s | %-30s\n", "ID", "Tên Phòng", "Sức chứa", "Vị trí", "Thiết bị cố định");
-                System.out.println("---------------------------------------------------------------------------------------------");
+                System.out.println("\n--- KẾT QUẢ TÌM KIẾM ---");
+                System.out.printf("%-5s | %-22s | %-10s | %-22s | %-30s%n",
+                        "ID", "Tên Phòng", "Sức chứa", "Vị trí", "Thiết bị cố định");
+                System.out.println("-".repeat(99));
                 for (Room r : list) {
-                    System.out.printf("%-5d | %-20s | %-10d | %-20s | %-30s\n",
-                            r.getRoomId(), r.getRoomName(), r.getCapacity(), r.getLocation(), r.getFixedDevice());
+                    System.out.printf("%-5d | %-22s | %-10d | %-22s | %-30s%n",
+                            r.getRoomId(), r.getRoomName(), r.getCapacity(),
+                            r.getLocation(), r.getFixedDevice());
                 }
+                System.out.println("Tổng: " + list.size() + " phòng.");
             }
         } catch (Exception e) {
             System.out.println("=> Lỗi tìm kiếm phòng: " + e.getMessage());

@@ -152,15 +152,18 @@ public class UserManagement {
 
             System.out.print("Phòng ban hiện tại [" + nvl(user.getDepartment()) + "]: ");
             String department = InputValidation.inputStringAllowEmpty();
-            if (!department.isBlank()) user.setDepartment(department);
+            if (!department.isBlank())
+                user.setDepartment(department);
 
             System.out.print("Email hiện tại [" + nvl(user.getContact()) + "]: ");
             String contact = InputValidation.inputStringAllowEmpty();
-            if (!contact.isBlank()) user.setContact(contact);
+            if (!contact.isBlank())
+                user.setContact(contact);
 
             System.out.print("Điện thoại hiện tại [" + nvl(user.getPhoneNumber()) + "]: ");
             String phone = InputValidation.inputStringAllowEmpty();
-            if (!phone.isBlank()) user.setPhoneNumber(phone);
+            if (!phone.isBlank())
+                user.setPhoneNumber(phone);
 
             // Đổi vai trò
             System.out.println("Vai trò hiện tại: " + user.getRole().name());
@@ -171,7 +174,8 @@ public class UserManagement {
                 case 1 -> user.setRole(Role.ADMIN);
                 case 2 -> user.setRole(Role.SUPPORT_STAFF);
                 case 3 -> user.setRole(Role.EMPLOYEE);
-                case 0 -> { /* giữ nguyên */ }
+                case 0 -> {
+                    /* giữ nguyên */ }
                 default -> System.out.println("Vai trò không hợp lệ, giữ nguyên.");
             }
 
