@@ -51,13 +51,13 @@ Xây dựng ứng dụng **console Java** quản lý toàn bộ quy trình đặ
 ┌─────────────────────────────────────────────────────────┐
 │                    HỆ THỐNG                             │
 │                                                         │
-│  EMPLOYEE          ADMIN              SUPPORT_STAFF      │
+│  EMPLOYEE          ADMIN              SUPPORT_STAFF     │
 │  - Đặt phòng       - Quản lý users    - Nhận nhiệm vụ   │
 │  - Xem lịch sử     - Quản lý phòng    - Cập nhật trạng  │
 │  - Sửa hồ sơ       - Quản lý TB       thái chuẩn bị     │
-│                    - Duyệt booking                       │
-│                    - Báo cáo/Hóa đơn                     │
-│                    - Quản lý nhân sự                     │
+│                    - Duyệt booking                      │
+│                    - Báo cáo/Hóa đơn                    │
+│                    - Quản lý nhân sự                    │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -76,8 +76,8 @@ Xây dựng ứng dụng **console Java** quản lý toàn bộ quy trình đặ
 │  AuthConsole (Login / Register)                             │
 │       ↓ (theo Role)                                         │
 │  ┌──────────────┬──────────────┬─────────────────────────┐  │
-│  │EmployeeConsole│ AdminConsole │ SupportStaffConsole     │  │
-│  │  (thin router)│ (thin router)│ (thin router)           │  │
+│  │EmployeeConsole│ AdminConsole │ SupportStaffConsole    │  │
+│  │  (thin router)│ (thin router)│ (thin router)          │  │
 │  └──────┬───────┴──────┬───────┴──────────┬──────────────┘  │
 │         ↓              ↓                  ↓                 │
 │  employee/         admin/             staff/                │
