@@ -33,7 +33,7 @@ public class EmployeeConsole {
             List<Notification> unread = notificationDAO.getUnreadNotifications(employee.getUserId());
             if (!unread.isEmpty()) {
                 System.out.println("\n***************************************************");
-                System.out.println("🔔 BẠN CÓ " + unread.size() + " THÔNG BÁO MỚI TỪ HỆ THỐNG!");
+                System.out.println("BẠN CÓ " + unread.size() + " THÔNG BÁO MỚI TỪ HỆ THỐNG!");
                 for (Notification n : unread) {
                     System.out.println(" - " + n.getMessage() + " (" + n.getCreatedAt() + ")");
                 }

@@ -1,10 +1,13 @@
 package presentation;
 
+import model.Booking;
 import model.Enum.Role;
 import model.User;
 import service.RoomService;
 import service.UserService;
 import util.InputValidation;
+
+import java.util.List;
 
 public class AdminConsole {
     private static final UserService userService = new UserService();
@@ -232,7 +235,7 @@ public class AdminConsole {
     public static void manageBookings() {
         System.out.println("\n--- QUẢN LÝ ĐẶT PHÒNG (DUYỆT/TỪ CHỐI) ---");
         try {
-            java.util.List<model.Booking> pendingList = bookingService.getPendingBookings();
+            List<Booking> pendingList = bookingService.getPendingBookings();
             if (pendingList.isEmpty()) {
                 System.out.println("=> Không có yêu cầu đặt phòng nào đang chờ duyệt (PENDING).");
                 return;
@@ -260,7 +263,7 @@ public class AdminConsole {
                     System.out.println("=> Từ chối thất bại.");
                 }
             } else if (action == 1) {
-                java.util.List<User> staffList = userService.getSupportStaffs();
+                List<User> staffList = userService.getSupportStaffs();
                 if (staffList.isEmpty()) {
                     System.out.println("=> Không có nhân viên Support Staff nào trong hệ thống! Không thể duyệt gán việc.");
                     return;
